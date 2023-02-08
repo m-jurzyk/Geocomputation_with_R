@@ -68,11 +68,49 @@
 #install.packages("sf")
 #install.packages("raster")
 #install.packages("spData")
-#remotes::install_github("Nowosad/spDataLarge") ## Problem with instalation 
+#remotes::install_github("Nowosad/spDataLarge") ## Problem with installation 
 
 library(sf)
 library(raster)
 library(spData)
 library(spDataLarge)
 
+##2.2.1 An introduction to simple features ---- 
 
+
+names(world)
+
+plot(world)
+
+summary(world["lifeExp"])
+
+##2.2.2 Why simple features? ---- 
+
+library(sp)
+
+world_sp = as(world, Class = "Spatial")
+
+##2.2.3 Basic map making ----
+
+plot(world[5:6])
+plot(world["pop"])
+
+world_asia = world[world$continent == "Asia", ]
+asia = st_union(world_asia)
+
+plot(world["pop"], reset = FALSE)
+plot(asia, add = TRUE, col = "red")
+
+
+##2.2.4 Base plot arguments ---- 
+
+
+plot(world["continent"], reset = FALSE)
+cex = sqrt(world$pop) / 10000
+world_cents = st_centroid(world, of_largest = TRUE)
+plot(st_geometry(world_cents), add = TRUE, cex = cex)
+
+
+india = world[world$name_long == "India", ]
+plot(st_geometry(india), expandBB = c(0, 0.2, 0.1, 1), col = "gray", lwd = 3)
+plot(world_asia[0], add = TRUE)
