@@ -190,7 +190,7 @@ summary(world)
 plot(world["continent"], reset = FALSE)
 cex = sqrt(world$pop) / 10000
 world_cents = st_centroid(world, of_largest = TRUE)
-plot(st_geometry(world_cents), add = TRUE, cex = cex)
+plot(st_geometry(world_cents), add = TRUE, cex=cex)
 
 
 #Find two similarities and two differences between the image on your computer 
@@ -210,10 +210,27 @@ plot(st_geometry(world_cents), add = TRUE, cex = cex)
 
 
 #2_a What does the cex argument do (see ?plot)?
+
+# Cex argument is mapping number of population, by the size of circle in the 
+# middle of given country polygon.
+
 #2_b Why was cex set to the sqrt(world$pop) / 10000?
+
+# Hmm why? 
+
 #2_c Bonus: experiment with different ways to visualize the global population.
 
+##Chapter 3 Attribute data operations ----
 
+library(sf)
+library(raster)
+library(dplyr)
+library(stringr) # for working with strings (pattern matching)
+library(tidyr)   # for unite() and separate()
+
+library(spData)
+
+###3.1 Introduction----
   
 
 
