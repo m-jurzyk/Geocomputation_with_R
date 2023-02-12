@@ -384,6 +384,181 @@ world_coffee_match = inner_join(world, coffee_data)
 
 ####3.2.4 Creating attributes and removing spatial information ----
 
+world_new = world # do not overwrite our original data
+
+#adding new column based on existing data
+
+world_new$pop_dens = world_new$pop / world_new$area_km2
+
+# mutate function:
+
+world %>% 
+  mutate(pop_dens = pop / area_km2)
+
+#Rename colum:
+
+world %>% 
+  rename(name = name_long)
+
+###3.3 Manipulating raster objects ----
+
+elev = raster(nrows = 6, ncols = 6, res = 0.5,
+              xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
+              vals = 1:36)
+
+grain_order = c("clay", "silt", "sand")
+grain_char = sample(grain_order, 36, replace = TRUE)
+grain_fact = factor(grain_char, levels = grain_order)
+grain = raster(nrows = 6, ncols = 6, res = 0.5, 
+               xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
+               vals = grain_fact)
+
+factorValues(grain, grain[c(1, 11, 35)]
+
+####3.3.1 Raster subsetting ----
+
+r_stack = stack(elev, grain)
+names(r_stack) = c("elev", "grain")
+# three ways to extract a layer of a stack
+raster::subset(r_stack, "elev")
+r_stack[["elev"]]
+r_stack$elev
+
+r_stack
+
+####3.3.2 Summarizing raster objects----
+
+cellStats(elev, sd)
+hist(elev)
 
 
+###3.4 Exercises ----
+
+library(spData)
+library(dplyr)
+data(us_states)
+data(us_states_df)
+
+#_1a Create a new object called us_states_name that contains only the NAME
+#column from the us_states object. 
+#What is the class of the new object and what makes it geographic?             
+
+
+us_states_name <- us_states$NAME
+
+us_states_name %>% class()
+
+#It's character object and it's not geographic, we can make it by joining data 
+#with geographic database by name 
+
+#_2a Select columns from the us_states object which contain population data. 
+#Obtain the same result using a different command
+
+us_states %>% select(
+  total_pop_10, total_pop_15)
+
+us_states %>% select(contains("pop"))
+
+
+#_3Find all states with the following characteristics (bonus find and plot them):
+
+#_3a Belong to the Midwest region.
+
+us_states %>% 
+  filter(REGION=="Midwest") %>% 
+  plot()
+
+
+#_3b Belong to the West region, have an area below 250,000 km2 
+#and in 2015 a population greater than 5,000,000 residents 
+
+us_states %>% glimpse()
+
+# To check datatype
+
+us_states %>% 
+  mutate(us_states, area1=as.numeric(us_states$AREA)) %>% 
+  filter(REGION=="West",area_1<250000,total_pop_15>5000000) %>% 
+  plot()
+  
+#####QUESTION: How can I plot only one selected state with all states? ----
+
+
+#_3c Belong to the South region, had an area larger than 150,000 km2 or a total 
+#population in 2015 larger than 7,000,000 residents.
+
+us_states %>% 
+  mutate(us_states, area1=as.numeric(us_states$AREA)) %>% 
+  filter(REGION=="South",area_1>150000,total_pop_15>7000000) %>% 
+  plot()
+
+
+#_4a What was the total population in 2015 in the us_states dataset?
+#What was the minimum and maximum total population in 2015?
+
+us_states %>% mutate(sum= sum(total_pop_15))
+
+#314375347 
+
+min(us_states$total_pop_15)
+
+#579679
+
+max(us_states$total_pop_15)
+
+#38421464
+  
+
+#_5a How many states are there in each region?
+
+
+us_states %>% 
+  dplyr::select(NAME, REGION) %>% 
+  group_by(REGION) %>% 
+  summarize(n_cities= n())
+
+  
+#_6a What was the minimum and maximum total population in 2015 in each region?
+
+
+p1 <- us_states %>% 
+  dplyr::select(NAME, REGION, total_pop_15) %>% 
+  group_by(REGION) %>% 
+  summarize(total_pop_15 = sum(total_pop_15), n_citiesinregion = n()) %>% 
+  arrange(desc(total_pop_15))
+
+p1
+
+
+min(p1$total_pop_15)
+  
+#55989520
+
+max(p1$total_pop_15)
+
+#118575377
+
+
+#_6b What was the total population in 2015 in each region?
+
+us_states %>% 
+  dplyr::select(NAME, REGION, total_pop_15) %>% 
+  group_by(REGION) %>% 
+  summarize(total_pop_15 = sum(total_pop_15), n_citiesinregion = n()) %>% 
+  arrange(desc(total_pop_15))
+
+#_7a Add variables from us_states_df to us_states, and create a new object 
+#called us_states_stats. What function did you use and why?
+#Which variable is the key in both datasets?
+#What is the class of the new object?
+
+#_8a us_states_df has two more rows than us_states. How can you find them? 
+#(hint: try to use the dplyr::anti_join() function)
+
+#_8bWhat was the population density in 2015 in each state? 
+
+#_9a What was the population density in 2010 in each state?
+
+#_10a How much has population density changed between 2010 and 2015 in each state? 
+#Calculate the change in percentages and map them.
 
