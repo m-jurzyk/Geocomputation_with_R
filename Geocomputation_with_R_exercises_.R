@@ -3,7 +3,7 @@
 
 #Robin Lovelace, Jakub Nowosad, Jannes Muenchow
 
-#2021-08-27
+#2021-08-27 - ~BOOK Publication 
 
 #To reproduce the code in the book, you need a recent version of R and up-to-date packages. 
 #These can be installed with the following command (which requires remotes):
@@ -549,16 +549,84 @@ us_states %>%
 
 #_7a Add variables from us_states_df to us_states, and create a new object 
 #called us_states_stats. What function did you use and why?
-#Which variable is the key in both datasets?
-#What is the class of the new object?
+
+x1 <- us_states_df %>% mutate(NAME=state)
+
+us_states
+
+x2 <- us_states %>% left_join(x1)
+
+#function left join and mutate, it's fairly easy
+
+#_7b #Which variable is the key in both datasets?
+
+# STATE NAME 
+
+#_7c What is the class of the new object?
+
+x2 %>% glimpse()
+
+# It's numeric <dbl>
 
 #_8a us_states_df has two more rows than us_states. How can you find them? 
+
 #(hint: try to use the dplyr::anti_join() function)
 
-#_8bWhat was the population density in 2015 in each state? 
+us_states %>% dplyr::anti_join(x1)
+
+nrow(us_states)
+
+nrow(us_states_df)
+
+#####QUESTION: Stil don't know which rows? ----
+
+
+#_8b What was the population density in 2015 in each state? 
+
+pd1 <- us_states %>% 
+  mutate(us_states,
+         areanum=as.numeric(us_states$AREA),
+         pop_dens_15 = total_pop_15/areanum) %>% 
+ select(NAME, pop_dens_15)
+
+pd1 %>% arrange(desc(pop_dens_15))
 
 #_9a What was the population density in 2010 in each state?
 
+pd2 <- us_states %>% 
+  mutate(us_states,
+         areanum=as.numeric(us_states$AREA),
+         pop_dens_10 = total_pop_10/areanum) %>% 
+  select(NAME, pop_dens_10)
+
+pd2 %>% arrange(desc(pop_dens_10))
+
 #_10a How much has population density changed between 2010 and 2015 in each state? 
 #Calculate the change in percentages and map them.
+
+pd3 <- us_states %>% 
+  mutate(us_states,
+         areanum=as.numeric(us_states$AREA),
+         pop_dens_10 = total_pop_10/areanum,
+         pop_dens_15 = total_pop_15/areanum,
+         change_pop = pop_dens_15-pop_dens_10) %>% 
+  select(NAME, change_pop)
+
+pd3 %>% arrange(desc(change_pop)) %>% 
+  plot()
+
+#####QUESTION: Stil don't know how to plot :/ ----
+
+#_11a Change the columns’ names in us_states to lowercase.
+#(Hint: helper functions - tolower() and colnames() may help.)
+
+us_states
+
+us_states %>% tolower(colnames(us_states, do.NULL = TRUE, prefix = "NAME",tolower()))
+
+? tolower
+
+#####QUESTION: TODO ----
+
+
 
