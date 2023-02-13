@@ -609,24 +609,157 @@ pd3 <- us_states %>%
          areanum=as.numeric(us_states$AREA),
          pop_dens_10 = total_pop_10/areanum,
          pop_dens_15 = total_pop_15/areanum,
-         change_pop = pop_dens_15-pop_dens_10) %>% 
-  select(NAME, change_pop)
+         change_pop = pop_dens_15-pop_dens_10)
 
-pd3 %>% arrange(desc(change_pop)) %>% 
-  plot()
+# My calculations 
 
-#####QUESTION: Stil don't know how to plot :/ ----
+
+us_popdens_change = pd3 |>
+  mutate(pop_dens_diff_10_15 = pop_dens_15 - pop_dens_10,
+         pop_dens_diff_10_15p = (pop_dens_diff_10_15/pop_dens_15) * 100)
+plot(us_popdens_change["pop_dens_diff_10_15p"])
+
+#Calculations + plot from solution book
 
 #_11a Change the columns’ names in us_states to lowercase.
 #(Hint: helper functions - tolower() and colnames() may help.)
 
 us_states
 
-us_states %>% tolower(colnames(us_states, do.NULL = TRUE, prefix = "NAME",tolower()))
-
 ? tolower
 
-#####QUESTION: TODO ----
+us_states %>%
+  setNames(tolower(colnames(.)))
+
+
+#_12a Using us_states and us_states_df create a new object called us_states_sel. 
+#he new object should have only two variables - median_income_15 and geometry.
+#Change the name of the median_income_15 column to Income.
+
+u1 <-us_states_df %>% mutate(NAME= state)
+
+u <- us_states_sel <- left_join(us_states, u1)
+
+u2 <- us_states_sel %>% select(median_income_15, geometry)
+
+u3 <- u2 %>% mutate(Income=median_income_15 ) %>% 
+  select(Income, geometry)
+
+## Perhaps it's more elegant way of doing it
+
+
+#_13a Calculate the change in the number of residents living below the poverty 
+#level between 2010 and 2015 for each state. 
+#(Hint: See ?us_states_df for documentation on the poverty level columns.) 
+#Bonus: Calculate the change in the percentage of residents living below the poverty level in each state.
+
+
+?us_states_df
+
+
+u_13 <- u %>% select(!state)
+
+up <- u_13 %>% mutate(
+  poverty_change=poverty_level_15-poverty_level_10,
+  poverty_change_share_inpercent=(poverty_change/total_pop_15)*100) %>% 
+  arrange(desc(poverty_change_share_inpercent))
+
+up
+
+#_14a What was the minimum, average and maximum state’s number of people living 
+#below the poverty line in 2015 for each region?
+
+up1 <- up %>% 
+  dplyr::select(NAME, REGION, total_pop_15, poverty_level_15, ) %>% 
+  group_by(REGION) %>% 
+  summarize(poverty_level_15 = sum(poverty_level_15), n_cities_in_region = n())
+
+min(up1$poverty_level_15)
+
+# 7240189
+
+max(up1$poverty_level_15)
+
+# 19508771
+
+#Bonus: What is the region with  the largest increase in people living below the poverty line?
+
+
+up3 <- up %>% 
+  dplyr::select(NAME, REGION, total_pop_15, poverty_level_15,poverty_change ) %>% 
+  group_by(REGION) %>% 
+  summarize(poverty_change = sum(poverty_change), n_cities_in_region = n())
+
+max(up3$poverty_change)
+
+#SOUTH!  
+
+
+
+#_15a Create a raster from scratch with nine rows and columns and a resolution of 0.5 decimal degrees (WGS84). 
+#Fill it with random numbers. Extract the values of the four corner cells.
+
+library(raster)
+
+r = rast(nrow = 9, ncol = 9, res = 0.5,
+         xmin = 0, xmax = 4.5, ymin = 0, ymax = 4.5,
+         vals = rnorm(81))
+
+
+plot(r)
+
+#_16a What is the most common class of our example raster grain?
+
+
+boxplot(r)
+
+summary(r)
+
+hist(r)
+
+?global
+
+?modal
+
+modal(r)
+
+
+
+#_17a Plot the histogram and the boxplot of the dem.tif file from the spDataLarge 
+#package (system.file("raster/dem.tif", package = "spDataLarge"))
+
+ra <- rast(system.file("raster/dem.tif", package = "spDataLarge"))
+
+plot(ra)
+
+hist(ra)
+
+
+
+#Chapter 4 Spatial data operations ----
+
+library(sf)
+library(terra)
+library(dplyr)
+library(spData)
+
+elev = rast(system.file("raster/elev.tif", package = "spData"))
+grain = rast(system.file("raster/grain.tif", package = "spData"))
+
+
+#RAST FUNCTION IS NOT WORKING EHHH 
+
+
+### 4.1 Introduction ----
+
+library(fuzzyjoin)
+library(terra)
+
+
+### 4.2 Spatial operations on vector data----
+
+canterbury = nz |> filter(Name == "Canterbury")
+canterbury_height = nz_height[canterbury, ]
 
 
 
