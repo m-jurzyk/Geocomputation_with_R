@@ -755,11 +755,73 @@ grain = rast(system.file("raster/grain.tif", package = "spData"))
 library(fuzzyjoin)
 library(terra)
 
-
 ### 4.2 Spatial operations on vector data----
 
 canterbury = nz |> filter(Name == "Canterbury")
 canterbury_height = nz_height[canterbury, ]
+
+#### 4.2.2 Topological relations ----
+
+# create a polygon
+a_poly = st_polygon(list(rbind(c(-1, -1), c(1, -1), c(1, 1), c(-1, -1))))
+a = st_sfc(a_poly)
+
+# create a line
+l_line = st_linestring(x = matrix(c(-1, -1, -0.5, 1), ncol = 2))
+l = st_sfc(l_line)
+
+# create points
+p_matrix = matrix(c(0.5, 1, -1, 0, 0, 1, 0.5, 1), ncol = 2)
+p_multi = st_multipoint(x = p_matrix)
+p = st_cast(st_sfc(p_multi), "POINT")
+
+plot(a)
+
+#####QUESTION: how to make this plot? FIGURE 4.2 ----
+
+## Relations between polygon, line and points
+st_intersects(p, a)
+
+
+# Oposite of intersects 
+st_disjoint(p, a, sparse = FALSE)[, 1] #(note [, 1] converts the result into a vector)
+
+
+## Within the object? * only object 100% within object
+
+st_within(p, a, sparse = FALSE)[, 1]
+
+st_touches(p, a, sparse = FALSE)[, 1]
+
+sel = st_is_within_distance(p, a, dist = 0.9) # can only return a sparse matrix
+sel
+
+lengths(sel) > 0
+
+####4.2.3 Spatial Joins ----
+
+set.seed(2018) # set seed for reproducibility
+(bb_world = st_bbox(world)) # the world's bounds
+#>   xmin   ymin   xmax   ymax 
+#> -180.0  -89.9  180.0   83.6
+random_df = tibble(
+  x = runif(n = 10, min = bb_world[1], max = bb_world[3]),
+  y = runif(n = 10, min = bb_world[2], max = bb_world[4])
+)
+random_points = random_df %>% 
+  st_as_sf(coords = c("x", "y")) %>% # set coordinates
+  st_set_crs(4326) # set geographic CRS
+
+
+world_random = world[random_points, ]
+nrow(world_random)
+#> [1] 4
+random_joined = st_join(random_points, world["name_long"])
+
+plot(random_joined)
+
+#####QUESTION: how to plot this countries? FIGURE 4.3 ----
+
 
 
 
