@@ -981,8 +981,61 @@ aut_ch = merge(aut, ch)
 
 ### 4.4 Exercises  ====
 
-#It was established in Section 4.2 that Canterbury was the region of New Zealand 
+#_1a It was established in Section 4.2 that Canterbury was the region of New Zealand 
 #containing most of the 100 highest points in the country.
 #How many of these high points does the Canterbury region contain?
 
+library(tmap)
 
+qtm(nz)+qtm(nz_height)
+
+canterbury <-  nz %>% filter(Name=="Canterbury")
+
+canterbury_height <- nz_height[canterbury, ]
+
+nz_not_cantenbury <- nz_height[canterbury, , op = st_disjoint]
+
+nrow(canterbury_height)
+
+plot(st_geometry(nz))
+
+plot(st_geometry(canterbury), col="yellow", add= TRUE)
+
+plot(nz_not_cantenbury$geometry, pch=1, col="blue", add=TRUE)
+
+plot(canterbury_height$geometry, pch=1, col="red", add= TRUE)
+
+#_2a Which region has the second highest number of nz_height points in, 
+#and how many does it have?
+
+nz_height_count = aggregate(nz_height, nz, length)
+
+nz_height_combined = cbind(nz,count = nz_height_count$elevation)
+
+nz_height_combined %>% 
+  st_drop_geometry() %>% 
+  select(Name, count) %>% 
+  arrange(desc(count)) %>% 
+  slice(2)
+
+
+#_3a Generalizing the question to all regions:
+#how many of New Zealand’s 16 regions contain points 
+#which belong to the top 100 highest points in the country? Which regions?
+
+#Bonus: create a table listing these regions in order
+#of the number of points and their name.
+
+nz_height_joint <- 
+  st_join(nz_height, nz) %>% 
+  select(Name)
+
+nz_height_count <- nz_height_joint %>% 
+  group_by(Name) %>% 
+  summarise(count=n())
+
+nz_height_count
+
+
+#_4a Test your knowledge of spatial predicates by finding out and plotting
+#how US states relate to each other and other spatial objects.
