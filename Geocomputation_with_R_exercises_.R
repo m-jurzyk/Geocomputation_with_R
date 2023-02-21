@@ -413,7 +413,7 @@ grain = raster(nrows = 6, ncols = 6, res = 0.5,
                xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
                vals = grain_fact)
 
-factorValues(grain, grain[c(1, 11, 35)]
+factorValues(grain, grain[c(1, 11, 35)])
 
 ####3.3.1 Raster subsetting ----
 
@@ -619,6 +619,14 @@ us_popdens_change = pd3 |>
          pop_dens_diff_10_15p = (pop_dens_diff_10_15/pop_dens_15) * 100)
 plot(us_popdens_change["pop_dens_diff_10_15p"])
 
+# My calculations 
+
+
+us_popdens_change = pd3 |>
+  mutate(pop_dens_diff_10_15 = pop_dens_15 - pop_dens_10,
+         pop_dens_diff_10_15p = (pop_dens_diff_10_15/pop_dens_15) * 100)
+plot(us_popdens_change["pop_dens_diff_10_15p"])
+
 #Calculations + plot from solution book
 
 #_11a Change the columns’ names in us_states to lowercase.
@@ -626,7 +634,7 @@ plot(us_popdens_change["pop_dens_diff_10_15p"])
 
 us_states
 
-? tolower
+
 
 us_states %>%
   setNames(tolower(colnames(.)))
@@ -1033,9 +1041,6 @@ nz_height_joint <-
 nz_height_count <- nz_height_joint %>% 
   group_by(Name) %>% 
   summarise(count=n())
-
-nz_height_count
-
 
 #_4a Test your knowledge of spatial predicates by finding out and plotting
 #how US states relate to each other and other spatial objects.
